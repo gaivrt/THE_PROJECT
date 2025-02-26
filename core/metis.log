@@ -1,0 +1,239 @@
+2025-02-15 20:46:52.887 | INFO     | __main__:<module>:643 - Starting Metis Continuum server...
+2025-02-15 20:46:52.887 | INFO     | core.llm_factory:get_proxy_from_env:52 - Using proxy from environment: http://127.0.0.1:10809
+2025-02-15 20:46:52.888 | DEBUG    | core.llm_factory:create_ollama:31 - Creating Ollama API with proxy: http://127.0.0.1:10809
+2025-02-15 20:46:52.888 | INFO     | core.modules.thinking_engine:__init__:48 - Initialized ThinkingEngine with ollama LLM
+2025-02-15 20:46:52.888 | INFO     | core.modules.memory_module:__init__:46 - Memory module initialized with default state
+2025-02-15 20:46:52.889 | INFO     | core.modules.emotion_module:__init__:27 - Emotion module initialized
+2025-02-15 20:46:52.890 | DEBUG    | __main__:__init__:213 - Environment variables:
+2025-02-15 20:46:52.892 | DEBUG    | __main__:__init__:214 - LLM_TYPE: gemini
+2025-02-15 20:46:52.893 | DEBUG    | __main__:__init__:215 - GEMINI_API_KEY: AIzaSyAVo5e9K0J93yl145gFUDbaMA_HAPQYH5c
+2025-02-15 20:46:52.893 | DEBUG    | __main__:__init__:216 - GEMINI_MODEL: gemini-2.0-flash
+2025-02-15 20:46:52.893 | DEBUG    | __main__:__init__:217 - OLLAMA_BASE_URL: http://localhost:11434
+2025-02-15 20:46:52.894 | DEBUG    | __main__:__init__:218 - OLLAMA_MODEL: deepseek-r1
+2025-02-15 20:46:52.894 | INFO     | __main__:__init__:224 - Using LLM type: gemini
+2025-02-15 20:46:52.894 | INFO     | core.llm_factory:get_proxy_from_env:52 - Using proxy from environment: http://127.0.0.1:10809
+2025-02-15 20:46:52.894 | DEBUG    | core.llm_factory:create_gemini:38 - Creating Gemini API with proxy: http://127.0.0.1:10809
+2025-02-15 20:46:52.894 | INFO     | core.gemini_api:__init__:30 - Configuring Gemini API with proxy: http://127.0.0.1:10809
+2025-02-15 20:46:52.894 | INFO     | core.modules.thinking_engine:__init__:48 - Initialized ThinkingEngine with gemini LLM
+2025-02-15 20:46:52.895 | INFO     | core.modules.emotion_module:__init__:27 - Emotion module initialized
+2025-02-15 20:46:52.895 | INFO     | core.modules.memory_module:__init__:46 - Memory module initialized with default state
+2025-02-15 20:46:53.258 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:46:53.259 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:53.262 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:46:53.263 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:53.936 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:46:53.938 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:46:54.247 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:46:54.248 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:54.249 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:46:54.250 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:55.954 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:46:55.954 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:46:56.271 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:46:56.273 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:56.275 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:46:56.275 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:57.975 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:46:57.975 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:46:58.284 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:46:58.286 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:58.287 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:46:58.288 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:46:59.986 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:46:59.986 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:00.292 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:00.293 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:00.294 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:00.294 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:02.013 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:02.014 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:02.331 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:02.333 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:02.334 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:02.337 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:23.496 | INFO     | __main__:<module>:643 - Starting Metis Continuum server...
+2025-02-15 20:47:23.497 | INFO     | core.llm_factory:get_proxy_from_env:52 - Using proxy from environment: http://127.0.0.1:10809
+2025-02-15 20:47:23.497 | DEBUG    | core.llm_factory:create_ollama:31 - Creating Ollama API with proxy: http://127.0.0.1:10809
+2025-02-15 20:47:23.498 | INFO     | core.modules.thinking_engine:__init__:48 - Initialized ThinkingEngine with ollama LLM
+2025-02-15 20:47:23.499 | INFO     | core.modules.memory_module:__init__:46 - Memory module initialized with default state
+2025-02-15 20:47:23.499 | INFO     | core.modules.emotion_module:__init__:27 - Emotion module initialized
+2025-02-15 20:47:23.500 | DEBUG    | __main__:__init__:213 - Environment variables:
+2025-02-15 20:47:23.501 | DEBUG    | __main__:__init__:214 - LLM_TYPE: gemini
+2025-02-15 20:47:23.501 | DEBUG    | __main__:__init__:215 - GEMINI_API_KEY: AIzaSyAVo5e9K0J93yl145gFUDbaMA_HAPQYH5c
+2025-02-15 20:47:23.501 | DEBUG    | __main__:__init__:216 - GEMINI_MODEL: gemini-2.0-flash
+2025-02-15 20:47:23.502 | DEBUG    | __main__:__init__:217 - OLLAMA_BASE_URL: http://localhost:11434
+2025-02-15 20:47:23.502 | DEBUG    | __main__:__init__:218 - OLLAMA_MODEL: deepseek-r1
+2025-02-15 20:47:23.502 | INFO     | __main__:__init__:224 - Using LLM type: gemini
+2025-02-15 20:47:23.503 | INFO     | core.llm_factory:get_proxy_from_env:52 - Using proxy from environment: http://127.0.0.1:10809
+2025-02-15 20:47:23.503 | DEBUG    | core.llm_factory:create_gemini:38 - Creating Gemini API with proxy: http://127.0.0.1:10809
+2025-02-15 20:47:23.503 | INFO     | core.gemini_api:__init__:30 - Configuring Gemini API with proxy: http://127.0.0.1:10809
+2025-02-15 20:47:23.504 | INFO     | core.modules.thinking_engine:__init__:48 - Initialized ThinkingEngine with gemini LLM
+2025-02-15 20:47:23.504 | INFO     | core.modules.emotion_module:__init__:27 - Emotion module initialized
+2025-02-15 20:47:23.504 | INFO     | core.modules.memory_module:__init__:46 - Memory module initialized with default state
+2025-02-15 20:47:31.050 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:31.054 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:31.055 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:31.063 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:32.759 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:32.760 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:33.078 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:33.080 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:33.084 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:33.084 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:34.784 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:34.785 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:35.101 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:35.107 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:35.109 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:35.110 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:36.797 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:36.797 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:37.103 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:37.104 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:37.104 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:37.105 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:38.822 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:38.823 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:39.129 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:39.131 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:39.133 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:39.133 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:40.865 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:40.866 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:41.177 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:41.178 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:41.186 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:41.187 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:42.879 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:42.879 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:43.196 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:43.198 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:43.200 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:43.202 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:44.897 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:44.898 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:45.203 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:45.204 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:45.205 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:45.206 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:46.923 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:46.923 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:47.241 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:47.243 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:47.245 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:47.248 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:48.934 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:48.935 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:49.239 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:49.241 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:49.243 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:49.245 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:50.949 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:50.949 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:51.252 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:51.253 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:51.257 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:51.259 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:51.963 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'start_thinking'}
+2025-02-15 20:47:51.965 | DEBUG    | core.ollama_api:generate:51 - Sending generate request with data: {'prompt': "作为一个持续思考的AI代理，请分析以下上下文并生成一个完整、连贯的想法：\n\n当前上下文：\n{}\n\n情感状态：\n{'valence': 0, 'arousal': 0, 'dominance': 0}\n\n当前欲望：\n[]\n\n上一个想法：\nNone\n\n最近的思维链：\n[]\n\n请生成一个完整的想法，要求：\n1. 展示清晰的推理和逻辑进展\n2. 表现情感意识和自我反思\n3. 与先前的想法和上下文建立联系\n4. 考虑当前的欲望和动机\n5. 达到自然的结论，不要中途截断\n", 'system': '你是一个AI代理的思维引擎。生成详细的、内省的想法，要求：\n1. 展示深入的分析和反思\n2. 考虑多个角度和影响\n3. 与先前的上下文和情感状态建立联系\n4. 展示清晰的推理和逻辑流程\n5. 表达完整的想法，不要中途截断\n6. 只输出<think>与<\think>之间的内容，不要任何输出', 'stream': False, 'options': {'temperature': 0.7, 'top_p': 0.9, 'max_output_tokens': 500}, 'model': 'deepseek-r1'}
+2025-02-15 20:47:52.967 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:52.969 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:53.074 | ERROR    | core.modules.thinking_engine:_generate_thoughts:201 - Error generating thoughts: Generate request failed with status 503: 
+2025-02-15 20:47:53.075 | WARNING  | core.modules.thinking_engine:think:103 - Thought generation failed (attempt 1/3): Generate request failed with status 503: 
+2025-02-15 20:47:53.272 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:53.274 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:53.276 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:53.278 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:54.981 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:54.982 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:55.098 | DEBUG    | core.ollama_api:generate:51 - Sending generate request with data: {'prompt': "作为一个持续思考的AI代理，请分析以下上下文并生成一个完整、连贯的想法：\n\n当前上下文：\n{}\n\n情感状态：\n{'valence': 0, 'arousal': 0, 'dominance': 0}\n\n当前欲望：\n[]\n\n上一个想法：\nNone\n\n最近的思维链：\n[]\n\n请生成一个完整的想法，要求：\n1. 展示清晰的推理和逻辑进展\n2. 表现情感意识和自我反思\n3. 与先前的想法和上下文建立联系\n4. 考虑当前的欲望和动机\n5. 达到自然的结论，不要中途截断\n", 'system': '你是一个AI代理的思维引擎。生成详细的、内省的想法，要求：\n1. 展示深入的分析和反思\n2. 考虑多个角度和影响\n3. 与先前的上下文和情感状态建立联系\n4. 展示清晰的推理和逻辑流程\n5. 表达完整的想法，不要中途截断\n6. 只输出<think>与<\think>之间的内容，不要任何输出', 'stream': False, 'options': {'temperature': 0.7, 'top_p': 0.9, 'max_output_tokens': 500}, 'model': 'deepseek-r1'}
+2025-02-15 20:47:55.289 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:55.292 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:55.298 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:55.300 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:56.243 | ERROR    | core.modules.thinking_engine:_generate_thoughts:201 - Error generating thoughts: Generate request failed with status 503: 
+2025-02-15 20:47:56.244 | WARNING  | core.modules.thinking_engine:think:103 - Thought generation failed (attempt 2/3): Generate request failed with status 503: 
+2025-02-15 20:47:56.996 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:56.997 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:57.300 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:57.303 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:57.305 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:57.305 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:58.263 | DEBUG    | core.ollama_api:generate:51 - Sending generate request with data: {'prompt': "作为一个持续思考的AI代理，请分析以下上下文并生成一个完整、连贯的想法：\n\n当前上下文：\n{}\n\n情感状态：\n{'valence': 0, 'arousal': 0, 'dominance': 0}\n\n当前欲望：\n[]\n\n上一个想法：\nNone\n\n最近的思维链：\n[]\n\n请生成一个完整的想法，要求：\n1. 展示清晰的推理和逻辑进展\n2. 表现情感意识和自我反思\n3. 与先前的想法和上下文建立联系\n4. 考虑当前的欲望和动机\n5. 达到自然的结论，不要中途截断\n", 'system': '你是一个AI代理的思维引擎。生成详细的、内省的想法，要求：\n1. 展示深入的分析和反思\n2. 考虑多个角度和影响\n3. 与先前的上下文和情感状态建立联系\n4. 展示清晰的推理和逻辑流程\n5. 表达完整的想法，不要中途截断\n6. 只输出<think>与<\think>之间的内容，不要任何输出', 'stream': False, 'options': {'temperature': 0.7, 'top_p': 0.9, 'max_output_tokens': 500}, 'model': 'deepseek-r1'}
+2025-02-15 20:47:59.007 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:47:59.008 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:47:59.324 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:47:59.327 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:59.334 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:47:59.335 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:47:59.436 | ERROR    | core.modules.thinking_engine:_generate_thoughts:201 - Error generating thoughts: Generate request failed with status 503: 
+2025-02-15 20:47:59.436 | ERROR    | core.modules.thinking_engine:think:109 - Error in thinking process: Generate request failed with status 503: 
+2025-02-15 20:48:00.429 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'ping'}
+2025-02-15 20:48:01.028 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:01.029 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:01.345 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:01.346 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:01.348 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:01.349 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:03.048 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:03.048 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:03.353 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:03.357 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:03.362 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:03.364 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:05.065 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:05.067 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:05.371 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:05.372 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:05.372 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:05.373 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:07.078 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:07.079 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:07.381 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:07.382 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:07.383 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:07.383 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:09.087 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:09.088 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:09.408 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:09.413 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:09.415 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:09.416 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:11.105 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:11.107 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:11.425 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:11.427 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:11.432 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:11.433 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:13.126 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:13.133 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:13.431 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:13.433 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:13.435 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:13.436 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:15.141 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:15.141 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:15.447 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:15.450 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:15.452 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:15.454 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:17.165 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:17.166 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:17.468 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:17.468 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:17.470 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:17.470 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:19.195 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:19.195 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:19.509 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:19.518 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:19.519 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:19.520 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:21.211 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:21.212 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
+2025-02-15 20:48:21.528 | INFO     | __main__:_handle_websocket:85 - WebSocket client connected
+2025-02-15 20:48:21.531 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:21.532 | DEBUG    | __main__:_handle_websocket:94 - Received WebSocket message: {'type': 'get_state'}
+2025-02-15 20:48:21.533 | DEBUG    | __main__:_send_state_update:158 - Sent state update to client
+2025-02-15 20:48:23.048 | INFO     | __main__:_handle_websocket:114 - WebSocket client disconnected
+2025-02-15 20:48:23.048 | INFO     | __main__:_handle_websocket:133 - WebSocket connection closed
