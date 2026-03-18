@@ -25,11 +25,11 @@ class LLMFactory:
         return self._llms.get(name)
         
     @staticmethod
-    def create_ollama(base_url: str = "http://localhost:11434", proxy: Optional[str] = None) -> OllamaAPI:
+    def create_ollama(base_url: str = "http://localhost:11434", proxy: Optional[str] = None, timeout: float = 60.0) -> OllamaAPI:
         """Create an Ollama API instance."""
         proxy_config = proxy or LLMFactory.get_proxy_from_env()
-        logger.debug(f"Creating Ollama API with proxy: {proxy_config}")
-        return OllamaAPI(base_url=base_url, proxy=proxy_config)
+        logger.debug(f"Creating Ollama API with proxy: {proxy_config}, timeout: {timeout}s")
+        return OllamaAPI(base_url=base_url, proxy=proxy_config, timeout=timeout)
         
     @staticmethod
     def create_gemini(api_key: str, model_name: str = "gemini-2.0-flash", proxy: Optional[str] = None) -> GeminiAPI:

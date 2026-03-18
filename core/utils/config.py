@@ -3,38 +3,46 @@ Configuration Utility
 Manages configuration settings for the Metis Continuum system.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 import os
 from pydantic import BaseSettings
 from loguru import logger
 
 class MetisConfig(BaseSettings):
     """Configuration settings for Metis Continuum."""
-    
+
+    # LLM settings
+    llm_type: str = "ollama"
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "deepseek-r1"
+    gemini_api_key: Optional[str] = None
+    gemini_model: str = "gemini-2.0-flash"
+    llm_timeout: float = 60.0  # Timeout in seconds for LLM calls
+
     # Model settings
     model_name: str = "deepseek-ai/deepseek-r1-70b"
     model_device: str = "cuda"  # or "cpu"
-    
+
     # Thinking loop settings
     min_thinking_interval: float = 0.1
     max_thinking_interval: float = 5.0
     initial_thinking_interval: float = 1.0
-    
+
     # Memory settings
     short_term_memory_size: int = 100
     long_term_memory_size: int = 1000
-    context_window_size: int = 10
-    memory_consolidation_threshold: float = 0.7
-    
+    context_window_size: int = 20
+    memory_consolidation_threshold: float = 0.6
+
     # Emotion settings
     emotion_decay_rate: float = 0.1
     emotion_intensity_limits: tuple = (-1.0, 1.0)
-    
+
     # Desire settings
     desire_decay_rate: float = 0.05
     min_desire_priority: float = 0.1
     max_desire_priority: float = 1.0
-    
+
     # Evaluation settings
     expression_threshold: float = 0.7
     evaluation_weights: Dict[str, float] = {
@@ -44,11 +52,18 @@ class MetisConfig(BaseSettings):
         "emotional_impact": 0.15,
         "desire_alignment": 0.2
     }
-    
+
     # Server settings
     host: str = "localhost"
     port: int = 8000
-    
+    cors_allowed_origins: List[str] = ["*"]
+
+    # Proxy settings
+    use_proxy: bool = False
+    http_proxy: Optional[str] = None
+    https_proxy: Optional[str] = None
+    socks_proxy: Optional[str] = None
+
     class Config:
         env_file = ".env"
         

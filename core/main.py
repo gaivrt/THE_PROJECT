@@ -30,6 +30,7 @@ from core.modules.memory_module import MemoryModule
 from core.modules.evaluation_system import EvaluationSystem
 from core.ollama_api import OllamaAPI, OllamaRequest
 from core.utils.thinking_loop import ThinkingLoop
+from core.utils.config import load_config, MetisConfig
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,33 +45,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Metis Continuum API", lifespan=lifespan)
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # For development only - configure appropriately in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS is configured after MetisContinuum is initialized (see below)
 
 class MetisContinuum:
     def __init__(self):
         """Initialize the Metis Continuum system with all core components."""
-        # Load environment variables
+        # Load unified configuration via Pydantic BaseSettings
         load_dotenv()
+        self.config = load_config()
 
-        # Debug: Print environment variables
-        logger.debug(f"Environment variables:")
-        logger.debug(f"LLM_TYPE: {os.getenv('LLM_TYPE')}")
-        logger.debug(f"GEMINI_API_KEY: {os.getenv('GEMINI_API_KEY')}")
-        logger.debug(f"GEMINI_MODEL: {os.getenv('GEMINI_MODEL')}")
-        logger.debug(f"OLLAMA_BASE_URL: {os.getenv('OLLAMA_BASE_URL')}")
-        logger.debug(f"OLLAMA_MODEL: {os.getenv('OLLAMA_MODEL')}")
-
-        # Get LLM configuration from environment
-        llm_type = os.getenv("LLM_TYPE", "ollama")
-        if llm_type:
-            llm_type = llm_type.lower().strip().split("#")[0].strip()  # Remove comments and whitespace
+        llm_type = self.config.llm_type.lower().strip().split("#")[0].strip()
         logger.info(f"Using LLM type: {llm_type}")
         llm_config = self._get_llm_config(llm_type)
 
@@ -80,6 +64,11 @@ class MetisContinuum:
         self.desire_system = DesireSystem()
         self.memory_module = MemoryModule()
         self.evaluation_system = EvaluationSystem()
+
+        # Apply config to modules
+        self.emotion_module.decay_rate = self.config.emotion_decay_rate
+        self.desire_system.decay_rate = self.config.desire_decay_rate
+        self.evaluation_system.expression_threshold = self.config.expression_threshold
 
         # Expose LLM instance for API endpoints
         self.llm = self.thinking_engine.llm
@@ -92,8 +81,8 @@ class MetisContinuum:
             think_callback=self._think_callback,
             evaluate_callback=self._evaluate_callback,
             express_callback=self._express_callback,
-            min_interval=0.1,
-            max_interval=5.0,
+            min_interval=self.config.min_thinking_interval,
+            max_interval=self.config.max_thinking_interval,
         )
 
     def _get_llm_config(self, llm_type: str) -> Dict[str, Any]:
@@ -101,14 +90,13 @@ class MetisContinuum:
         config = {}
 
         if llm_type == "ollama":
-            config["base_url"] = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-            config["model_name"] = os.getenv("OLLAMA_MODEL", "deepseek-r1")
+            config["base_url"] = self.config.ollama_base_url
+            config["model_name"] = self.config.ollama_model
         elif llm_type == "gemini":
-            api_key = os.getenv("GEMINI_API_KEY")
-            if not api_key:
+            if not self.config.gemini_api_key:
                 raise ValueError("GEMINI_API_KEY environment variable is required for Gemini API")
-            config["api_key"] = api_key
-            config["model_name"] = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+            config["api_key"] = self.config.gemini_api_key
+            config["model_name"] = self.config.gemini_model
 
         return config
 
@@ -126,9 +114,17 @@ class MetisContinuum:
         """Callback for ThinkingLoop: evaluate thoughts and update state."""
         evaluation = self.evaluation_system.evaluate_thoughts(thoughts)
 
+        # Provide current emotional state and desires to memory module for
+        # reconsolidation and cognitive importance calculation
+        self.memory_module.current_emotional_state = self.emotion_module.get_current_state()
+        self.memory_module.active_desires = self.desire_system.get_active_desires()
+
         # Update memory and emotional state
         self.memory_module.store_thoughts(thoughts)
         self.emotion_module.update_state(thoughts, evaluation)
+
+        # Update desire system
+        self.desire_system.update_desires(thoughts, evaluation)
 
         # Add should_express flag for ThinkingLoop
         evaluation["should_express"] = self.evaluation_system.should_express(thoughts, evaluation)
@@ -174,6 +170,15 @@ class MetisContinuum:
 # Initialize the system
 metis = MetisContinuum()
 
+# Configure CORS from unified config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=metis.config.cors_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/api/generate")
 async def generate(request: OllamaRequest):
     """Generate a response using the configured LLM."""
@@ -202,6 +207,39 @@ async def health_check():
         return {"status": "healthy" if is_healthy else "unhealthy"}
     except Exception as e:
         logger.error(f"Error in health check endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/state")
+async def get_system_state():
+    """Return the complete internal state of the system for debugging."""
+    try:
+        emotional_state = metis.emotion_module.get_current_state()
+        return {
+            "emotion": {
+                "state": emotional_state,
+                "label": metis.emotion_module.get_emotion_label(),
+                "decay_rates": metis.emotion_module.decay_rates.copy(),
+            },
+            "desires": {
+                "active": metis.desire_system.get_active_desires(),
+                "all": {
+                    name: d.to_dict() for name, d in metis.desire_system.desires.items()
+                },
+                "top_topics": metis.desire_system.topic_counter.most_common(10),
+            },
+            "memory": {
+                "short_term_count": len(metis.memory_module.short_term_memory),
+                "long_term_count": len(metis.memory_module.long_term_memory),
+                "context_window_size": len(metis.memory_module.context_window),
+            },
+            "thinking_loop": {
+                "running": metis.thinking_loop.running,
+                "current_interval": metis.thinking_loop.current_interval,
+            },
+            "expression_queue_size": metis.expression_queue.qsize(),
+        }
+    except Exception as e:
+        logger.error(f"Error in state endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.websocket("/ws")

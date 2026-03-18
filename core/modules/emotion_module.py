@@ -3,7 +3,8 @@ Emotion Module
 Implements emotional state management and emotional influence on thinking processes.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
+from collections import deque
 import numpy as np
 from loguru import logger
 
@@ -16,12 +17,43 @@ class EmotionModule:
             "arousal": 0.0,  # -1 (calm) to 1 (excited)
             "dominance": 0.0  # -1 (submissive) to 1 (dominant)
         }
-        
-        # Emotional decay rate (how quickly emotions return to neutral)
-        self.decay_rate = 0.1
-        
+
+        # Per-dimension decay rates (dynamic, adapt based on history)
+        self.decay_rates = {
+            "valence": 0.1,
+            "arousal": 0.1,
+            "dominance": 0.1,
+        }
+
+        # Base decay rate (used as reference point)
+        self.base_decay_rate = 0.1
+
+        # Backward-compatible scalar property
+        @property
+        def decay_rate(self):
+            return self.base_decay_rate
+
+        # Emotion event history for adaptive decay (recent events per dimension)
+        self._event_history: Dict[str, deque] = {
+            "valence": deque(maxlen=50),
+            "arousal": deque(maxlen=50),
+            "dominance": deque(maxlen=50),
+        }
+
         # Emotion intensity limits
         self.intensity_limits = (-1.0, 1.0)
+
+    @property
+    def decay_rate(self) -> float:
+        """Backward-compatible scalar decay rate."""
+        return self.base_decay_rate
+
+    @decay_rate.setter
+    def decay_rate(self, value: float):
+        """Setting decay_rate updates all dimensions uniformly."""
+        self.base_decay_rate = value
+        for dim in self.decay_rates:
+            self.decay_rates[dim] = value
         
     def get_current_state(self) -> Dict[str, float]:
         """Return the current emotional state."""
@@ -32,18 +64,26 @@ class EmotionModule:
         try:
             # Extract emotional influence from thoughts
             emotional_influence = thoughts.get("emotional_influence", {})
-            
+
             # Extract evaluation metrics
             evaluation_score = evaluation.get("score", 0.0)
-            
+
+            # Record event history for adaptive decay
+            for dimension in self.emotional_state:
+                influence = emotional_influence.get(dimension, 0.0)
+                self._event_history[dimension].append(influence)
+
             # Calculate new emotional state
             self._calculate_new_state(emotional_influence, evaluation_score)
-            
+
+            # Adapt decay rates based on event history
+            self._adapt_decay_rates()
+
             # Apply emotional decay
             self._apply_decay()
-            
+
             logger.debug(f"Updated emotional state: {self.emotional_state}")
-            
+
         except Exception as e:
             logger.error(f"Error updating emotional state: {e}")
             
@@ -66,12 +106,37 @@ class EmotionModule:
             )
             
     def _apply_decay(self):
-        """Apply emotional decay to move emotions gradually toward neutral."""
+        """Apply per-dimension emotional decay to move emotions gradually toward neutral."""
         for dimension in self.emotional_state:
             current_value = self.emotional_state[dimension]
+            rate = self.decay_rates.get(dimension, self.base_decay_rate)
             # Decay toward neutral (0.0)
-            decay_amount = current_value * self.decay_rate
+            decay_amount = current_value * rate
             self.emotional_state[dimension] -= decay_amount
+
+    def _adapt_decay_rates(self):
+        """Adapt decay rates based on emotional event history.
+
+        - Repeated positive experiences → slower positive decay (emotional resilience)
+        - Repeated negative experiences → faster negative decay (desensitization)
+        """
+        for dimension in self.decay_rates:
+            history = self._event_history[dimension]
+            if len(history) < 5:
+                continue  # Not enough history to adapt
+
+            recent = list(history)[-10:]  # Last 10 events
+            avg = sum(recent) / len(recent)
+
+            if avg > 0.1:
+                # Repeated positive → slow down decay (resilience), min 0.03
+                self.decay_rates[dimension] = max(0.03, self.base_decay_rate * 0.7)
+            elif avg < -0.1:
+                # Repeated negative → speed up decay (desensitization), max 0.2
+                self.decay_rates[dimension] = min(0.2, self.base_decay_rate * 1.5)
+            else:
+                # Neutral → drift back toward base rate
+                self.decay_rates[dimension] += (self.base_decay_rate - self.decay_rates[dimension]) * 0.1
             
     def get_emotion_label(self) -> str:
         """Convert dimensional emotions to categorical label for easier interpretation."""

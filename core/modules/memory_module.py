@@ -17,12 +17,13 @@ class Memory:
         self.last_access_time = self.creation_time
         self.access_count = 0
         self.importance_score = 0.0
-        
+        self.reconsolidation_count = 0  # How many times this memory has been reinterpreted
+
     def access(self):
         """Record memory access."""
         self.last_access_time = time.time()
         self.access_count += 1
-        
+
     def update_importance(self, score: float):
         """Update the importance score of the memory."""
         self.importance_score = score
@@ -32,15 +33,23 @@ class MemoryModule:
         """Initialize the memory module with separate short-term and long-term storage."""
         # Short-term memory (working memory) with limited capacity
         self.short_term_memory: deque = deque(maxlen=100)
-        
+
         # Long-term memory with unlimited capacity but selective storage
         self.long_term_memory: List[Memory] = []
-        
+
         # Current context window - increased from 10 to maintain more recent thoughts
         self.context_window: deque = deque(maxlen=20)
-        
-        # Memory consolidation threshold
-        self.consolidation_threshold = 0.7
+
+        # Memory consolidation threshold (lowered from 0.7 to allow more nuanced importance scoring)
+        self.consolidation_threshold = 0.6
+
+        # Current emotional state (set externally for emotion-dependent reconsolidation)
+        self.current_emotional_state: Dict[str, float] = {
+            "valence": 0.0, "arousal": 0.0, "dominance": 0.0
+        }
+
+        # Active desires (set externally for cognitive importance calculation)
+        self.active_desires: List[Dict[str, Any]] = []
         
     def store_thoughts(self, thoughts: Dict[str, Any]):
         """Store new thoughts in memory."""
@@ -114,36 +123,59 @@ class MemoryModule:
         return set(tokens)
 
     def _calculate_importance(self, memory: Memory) -> float:
-        """Calculate importance score for a memory using multiple factors."""
+        """Calculate importance score for a memory using multiple factors.
+
+        Factors:
+        1. Emotional intensity (0-0.3)
+        2. Content substance (0-0.2)
+        3. Confidence level (0-0.2)
+        4. Cognitive importance: alignment with active desires (0-0.3)
+        """
         score = 0.0
 
-        # Factor 1: Emotional intensity (0-0.4)
+        # Factor 1: Emotional intensity (0-0.35)
         emotional_influence = memory.content.get("emotional_influence", {})
         if emotional_influence:
             emotional_intensity = sum(abs(v) for v in emotional_influence.values()) / len(emotional_influence)
-            score += min(0.4, emotional_intensity * 0.4)
+            score += min(0.35, emotional_intensity * 0.35)
 
-        # Factor 2: Content substance — longer, meaningful content is more important (0-0.3)
+        # Factor 2: Content substance (0-0.2)
         content = memory.content.get("content", "")
         content_len = len(content.strip())
         if content_len >= 50:
-            score += 0.3
-        elif content_len >= 20:
             score += 0.2
+        elif content_len >= 20:
+            score += 0.15
         elif content_len >= 5:
-            score += 0.1
+            score += 0.05
 
-        # Factor 3: Confidence level (0-0.3)
+        # Factor 3: Confidence level (0-0.2)
         confidence = memory.content.get("confidence", 0.0)
-        # Normalize confidence: could be 0-100 or 0-1
         if confidence > 1.0:
             confidence = confidence / 100.0
-        score += min(0.3, confidence * 0.3)
+        score += min(0.2, confidence * 0.2)
+
+        # Factor 4: Cognitive importance — alignment with active desires (0-0.25)
+        # Prevents "calm but profound insights" from being forgotten
+        if self.active_desires and content:
+            content_words = self._extract_words(content)
+            desire_words = set()
+            for desire in self.active_desires:
+                desire_words.update(self._extract_words(desire.get("name", "")))
+            if content_words and desire_words:
+                overlap = len(content_words & desire_words)
+                desire_alignment = min(1.0, overlap / max(len(desire_words), 1))
+                score += min(0.25, desire_alignment * 0.25)
 
         return min(1.0, score)
             
     def _get_relevant_memories(self) -> List[Dict[str, Any]]:
-        """Retrieve relevant memories based on current context."""
+        """Retrieve relevant memories based on current context.
+
+        Performs reconsolidation on retrieved memories: each retrieval
+        subtly reinterprets the memory through the current emotional lens,
+        simulating the constructive nature of human memory.
+        """
         if not self.long_term_memory:
             return [{
                 "content": "正在积累新的记忆",
@@ -151,22 +183,66 @@ class MemoryModule:
                 "importance": 1.0,
                 "timestamp": int(time.time() * 1000)
             }]
-            
-        relevant_memories = []
+
+        scored_memories = []
         current_context = list(self.context_window)[-1] if self.context_window else None
-        
+
         if current_context:
             for memory in self.long_term_memory:
                 relevance = self._calculate_relevance(memory, current_context)
-                if relevance > 0.5:  # Only include sufficiently relevant memories
-                    relevant_memories.append({
-                        "content": memory.content.get("content", ""),
-                        "type": memory.memory_type,
-                        "importance": memory.importance_score,
-                        "timestamp": int(memory.creation_time * 1000)
-                    })
-                    
-        return relevant_memories[:5]  # Return top 5 most relevant memories
+                if relevance > 0.5:
+                    scored_memories.append((relevance, memory))
+
+        # Sort by relevance descending
+        scored_memories.sort(key=lambda x: x[0], reverse=True)
+        top_memories = scored_memories[:5]
+
+        result = []
+        for relevance, memory in top_memories:
+            # Record access
+            memory.access()
+
+            # Reconsolidate: blend current emotional state into the memory
+            self._reconsolidate(memory)
+
+            result.append({
+                "content": memory.content.get("content", ""),
+                "type": memory.memory_type,
+                "importance": memory.importance_score,
+                "timestamp": int(memory.creation_time * 1000),
+            })
+
+        return result
+
+    def _reconsolidate(self, memory: Memory):
+        """Reconsolidate a memory: reinterpret it through the current emotional lens.
+
+        Each retrieval subtly modifies the memory, simulating how human memories
+        are reconstructed rather than replayed. The emotional coloring of the
+        current state influences how the memory is "remembered".
+        """
+        memory.reconsolidation_count += 1
+        valence = self.current_emotional_state.get("valence", 0.0)
+
+        # Adjust memory's stored emotional influence based on current emotional state
+        stored_emotion = memory.content.get("emotional_influence", {})
+        if stored_emotion:
+            # Blend current emotional valence into stored emotional state (subtle shift)
+            blend_factor = 0.1  # Only 10% influence per retrieval
+            for dim in stored_emotion:
+                current_dim = self.current_emotional_state.get(dim, 0.0)
+                stored_emotion[dim] = stored_emotion[dim] * (1 - blend_factor) + current_dim * blend_factor
+            memory.content["emotional_influence"] = stored_emotion
+
+        # Recalculate importance with current context (desires may have changed)
+        new_importance = self._calculate_importance(memory)
+        # Blend old and new importance to prevent drastic swings
+        memory.importance_score = memory.importance_score * 0.7 + new_importance * 0.3
+
+        logger.debug(
+            f"Reconsolidated memory (count={memory.reconsolidation_count}, "
+            f"new_importance={memory.importance_score:.2f})"
+        )
         
     def _calculate_relevance(self, memory: Memory,
                            context: Dict[str, Any]) -> float:

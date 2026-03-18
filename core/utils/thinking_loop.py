@@ -51,24 +51,42 @@ class ThinkingLoop:
         
     async def _run_loop(self):
         """Run the continuous thinking loop."""
+        cycle_count = 0
         while self.running:
             try:
+                cycle_count += 1
+
                 # Generate thought
                 thought = await self.think_callback()
-                
+
                 # Evaluate thought
                 evaluation = await self.evaluate_callback(thought)
-                
+
+                should_express = evaluation.get("should_express", False)
+
                 # Consider expression
-                if evaluation.get("should_express", False):
+                if should_express:
                     await self.express_callback(thought, evaluation)
-                    
+
+                # Structured logging for each cycle
+                content = thought.get("content", "")
+                summary = content[:80] + "..." if len(content) > 80 else content
+                logger.info(
+                    "Thinking cycle #{cycle} | score={score:.2f} | express={express} | "
+                    "interval={interval:.2f}s | summary={summary}",
+                    cycle=cycle_count,
+                    score=evaluation.get("score", 0.0),
+                    express=should_express,
+                    interval=self.current_interval,
+                    summary=summary,
+                )
+
                 # Adjust thinking interval based on evaluation
                 self._adjust_interval(evaluation)
-                
+
                 # Wait before next iteration
                 await asyncio.sleep(self.current_interval)
-                
+
             except Exception as e:
                 logger.error(f"Error in thinking loop: {e}")
                 # Brief pause on error

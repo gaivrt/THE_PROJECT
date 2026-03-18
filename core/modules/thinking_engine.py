@@ -27,9 +27,11 @@ class ThinkingEngine:
         if self.llm_type == "ollama":
             base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
             model_name = os.getenv("OLLAMA_MODEL", "deepseek-r1")
+            timeout = float(os.getenv("LLM_TIMEOUT", "60.0"))
             self.llm = self.llm_factory.create_ollama(
                 base_url=base_url,
-                proxy=proxy
+                proxy=proxy,
+                timeout=timeout,
             )
         elif self.llm_type == "gemini":
             api_key = os.getenv("GEMINI_API_KEY")
