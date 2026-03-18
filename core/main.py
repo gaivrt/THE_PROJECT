@@ -29,21 +29,17 @@ from core.modules.desire_system import DesireSystem
 from core.modules.memory_module import MemoryModule
 from core.modules.evaluation_system import EvaluationSystem
 from core.ollama_api import OllamaAPI, OllamaRequest
+from core.utils.thinking_loop import ThinkingLoop
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan event handler for FastAPI application."""
     # Startup: Initialize the continuous thinking process
     logger.info("Starting Metis Continuum system...")
-    metis.thinking_task = asyncio.create_task(metis.start_continuous_thinking())
+    await metis.thinking_loop.start()
     yield
     # Shutdown: Clean up resources
-    if metis.thinking_task:
-        metis.thinking_task.cancel()
-        try:
-            await metis.thinking_task
-        except asyncio.CancelledError:
-            pass
+    await metis.thinking_loop.stop()
     logger.info("Metis Continuum system shutdown complete")
 
 app = FastAPI(title="Metis Continuum API", lifespan=lifespan)
@@ -62,7 +58,7 @@ class MetisContinuum:
         """Initialize the Metis Continuum system with all core components."""
         # Load environment variables
         load_dotenv()
-        
+
         # Debug: Print environment variables
         logger.debug(f"Environment variables:")
         logger.debug(f"LLM_TYPE: {os.getenv('LLM_TYPE')}")
@@ -70,28 +66,40 @@ class MetisContinuum:
         logger.debug(f"GEMINI_MODEL: {os.getenv('GEMINI_MODEL')}")
         logger.debug(f"OLLAMA_BASE_URL: {os.getenv('OLLAMA_BASE_URL')}")
         logger.debug(f"OLLAMA_MODEL: {os.getenv('OLLAMA_MODEL')}")
-        
+
         # Get LLM configuration from environment
         llm_type = os.getenv("LLM_TYPE", "ollama")
         if llm_type:
             llm_type = llm_type.lower().strip().split("#")[0].strip()  # Remove comments and whitespace
         logger.info(f"Using LLM type: {llm_type}")
         llm_config = self._get_llm_config(llm_type)
-        
+
         # Initialize thinking engine with specified LLM
         self.thinking_engine = ThinkingEngine(llm_type=llm_type, llm_config=llm_config)
         self.emotion_module = EmotionModule()
         self.desire_system = DesireSystem()
         self.memory_module = MemoryModule()
         self.evaluation_system = EvaluationSystem()
-        
-        # Background thinking task
-        self.thinking_task = None
-        
+
+        # Expose LLM instance for API endpoints
+        self.llm = self.thinking_engine.llm
+
+        # Expression queue for thought output to frontend
+        self.expression_queue: asyncio.Queue = asyncio.Queue(maxsize=100)
+
+        # Initialize thinking loop with callbacks
+        self.thinking_loop = ThinkingLoop(
+            think_callback=self._think_callback,
+            evaluate_callback=self._evaluate_callback,
+            express_callback=self._express_callback,
+            min_interval=0.1,
+            max_interval=5.0,
+        )
+
     def _get_llm_config(self, llm_type: str) -> Dict[str, Any]:
         """Get LLM configuration based on type."""
         config = {}
-        
+
         if llm_type == "ollama":
             config["base_url"] = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
             config["model_name"] = os.getenv("OLLAMA_MODEL", "deepseek-r1")
@@ -101,68 +109,66 @@ class MetisContinuum:
                 raise ValueError("GEMINI_API_KEY environment variable is required for Gemini API")
             config["api_key"] = api_key
             config["model_name"] = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-        
+
         return config
 
-    async def start_continuous_thinking(self):
-        """Start the continuous background thinking process."""
-        while True:
-            try:
-                # Get current context from memory
-                context = self.memory_module.get_current_context()
-                
-                # Generate thoughts based on context, emotions, and desires
-                thoughts = await self.thinking_engine.think(
-                    context=context,
-                    emotional_state=self.emotion_module.get_current_state(),
-                    desires=self.desire_system.get_active_desires()
-                )
-                
-                # Evaluate thoughts
-                evaluation = self.evaluation_system.evaluate_thoughts(thoughts)
-                
-                # Update memory and emotional state based on thoughts
-                self.memory_module.store_thoughts(thoughts)
-                self.emotion_module.update_state(thoughts, evaluation)
-                
-                # Decide whether to express thoughts
-                if self.evaluation_system.should_express(thoughts, evaluation):
-                    # Queue thoughts for expression
-                    await self.queue_expression(thoughts)
-                
-                # Longer pause between thoughts to allow for more natural thinking rhythm
-                # and to prevent overwhelming the system
-                await asyncio.sleep(5.0)  # 5 seconds between thoughts
-                
-            except Exception as e:
-                logger.error(f"Error in continuous thinking process: {e}")
-                # Brief pause before retrying after an error
-                await asyncio.sleep(1.0)
+    async def _think_callback(self) -> Dict[str, Any]:
+        """Callback for ThinkingLoop: generate a thought."""
+        context = self.memory_module.get_current_context()
+        thoughts = await self.thinking_engine.think(
+            context=context,
+            emotional_state=self.emotion_module.get_current_state(),
+            desires=self.desire_system.get_active_desires(),
+        )
+        return thoughts
+
+    async def _evaluate_callback(self, thoughts: Dict[str, Any]) -> Dict[str, Any]:
+        """Callback for ThinkingLoop: evaluate thoughts and update state."""
+        evaluation = self.evaluation_system.evaluate_thoughts(thoughts)
+
+        # Update memory and emotional state
+        self.memory_module.store_thoughts(thoughts)
+        self.emotion_module.update_state(thoughts, evaluation)
+
+        # Add should_express flag for ThinkingLoop
+        evaluation["should_express"] = self.evaluation_system.should_express(thoughts, evaluation)
+        return evaluation
+
+    async def _express_callback(self, thoughts: Dict[str, Any], evaluation: Dict[str, Any]):
+        """Callback for ThinkingLoop: queue thoughts for expression."""
+        await self.queue_expression(thoughts)
 
     async def queue_expression(self, thoughts: Dict[str, Any]):
         """Queue thoughts for expression through the frontend."""
-        # Implementation for expression queuing
-        pass
-
-    async def test_ollama_connection(self) -> bool:
-        """Test the connection to Ollama API."""
         try:
-            # First check if Ollama API is healthy
-            is_healthy = await self.ollama_api.health_check()
+            if self.expression_queue.full():
+                # Discard oldest entry to make room
+                try:
+                    self.expression_queue.get_nowait()
+                except asyncio.QueueEmpty:
+                    pass
+            self.expression_queue.put_nowait(thoughts)
+            logger.debug(f"Queued thought for expression (queue size: {self.expression_queue.qsize()})")
+        except Exception as e:
+            logger.error(f"Error queuing expression: {e}")
+
+    async def test_llm_connection(self) -> bool:
+        """Test the connection to the configured LLM API."""
+        try:
+            is_healthy = await self.llm.health_check()
             if not is_healthy:
-                logger.error("Ollama API health check failed")
+                logger.error("LLM API health check failed")
                 return False
 
-            # Then initialize the thinking engine which uses Ollama
             engine_initialized = await self.thinking_engine.initialize_model()
             if not engine_initialized:
-                logger.error("Failed to initialize thinking engine with Ollama")
+                logger.error("Failed to initialize thinking engine")
                 return False
 
-            logger.info("Successfully connected to Ollama and initialized thinking engine")
+            logger.info("Successfully connected to LLM and initialized thinking engine")
             return True
         except Exception as e:
-            logger.error(f"Error testing Ollama connection: {e}")
+            logger.error(f"Error testing LLM connection: {e}")
             return False
 
 # Initialize the system
@@ -170,11 +176,9 @@ metis = MetisContinuum()
 
 @app.post("/api/generate")
 async def generate(request: OllamaRequest):
-    """
-    Generate a response using the Ollama API.
-    """
+    """Generate a response using the configured LLM."""
     try:
-        response = await metis.ollama_api.generate(request)
+        response = await metis.llm.generate(request)
         return response
     except Exception as e:
         logger.error(f"Error in generate endpoint: {str(e)}")
@@ -182,11 +186,9 @@ async def generate(request: OllamaRequest):
 
 @app.post("/api/chat")
 async def chat(request: OllamaRequest):
-    """
-    Send a chat request to the Ollama API.
-    """
+    """Send a chat request to the configured LLM."""
     try:
-        response = await metis.ollama_api.chat(request)
+        response = await metis.llm.chat(request)
         return response
     except Exception as e:
         logger.error(f"Error in chat endpoint: {str(e)}")
@@ -194,11 +196,9 @@ async def chat(request: OllamaRequest):
 
 @app.get("/api/health")
 async def health_check():
-    """
-    Check the health of the Ollama API.
-    """
+    """Check the health of the configured LLM."""
     try:
-        is_healthy = await metis.ollama_api.health_check()
+        is_healthy = await metis.llm.health_check()
         return {"status": "healthy" if is_healthy else "unhealthy"}
     except Exception as e:
         logger.error(f"Error in health check endpoint: {str(e)}")
@@ -208,27 +208,44 @@ async def health_check():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info("WebSocket connection opened")
-    
+
+    async def send_expressions():
+        """Consume expression queue and push thoughts to the client."""
+        while True:
+            try:
+                thoughts = await metis.expression_queue.get()
+                await websocket.send_json({
+                    "type": "expression",
+                    "data": {
+                        "content": thoughts.get("content", ""),
+                        "confidence": float(thoughts.get("confidence", 0.0)),
+                        "timestamp": int(thoughts.get("timestamp", time.time() * 1000)),
+                        "emotionalState": thoughts.get("emotionalState", "neutral"),
+                    },
+                })
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Error sending expression via WebSocket: {e}")
+                break
+
+    expression_task = asyncio.create_task(send_expressions())
+
     try:
         # Send initial state
         initial_state = await process_websocket_message({})
         await websocket.send_json(initial_state)
-        
-        # Start periodic state updates
+
+        # Process incoming messages and send periodic state updates
         while True:
             try:
-                # Process any incoming messages
-                data = await websocket.receive_json()
+                data = await asyncio.wait_for(websocket.receive_json(), timeout=2.0)
                 response = await process_websocket_message(data)
                 await websocket.send_json(response)
-                
-                # Send periodic state updates
+            except asyncio.TimeoutError:
+                # No client message — send a periodic state update
                 state_update = await process_websocket_message({})
                 await websocket.send_json(state_update)
-                
-                # Brief pause to prevent overwhelming the connection
-                await asyncio.sleep(1)
-                
             except WebSocketDisconnect as e:
                 if e.code == 1000:
                     logger.info("WebSocket closed normally")
@@ -241,6 +258,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 logger.error(f"Error processing WebSocket message: {e}")
                 await websocket.send_json({"type": "error", "data": str(e)})
     finally:
+        expression_task.cancel()
+        try:
+            await expression_task
+        except asyncio.CancelledError:
+            pass
         logger.info("WebSocket connection closed")
 
 async def process_websocket_message(data: Dict[str, Any]) -> Dict[str, Any]:

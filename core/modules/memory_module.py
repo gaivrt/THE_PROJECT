@@ -3,7 +3,8 @@ Memory Module
 Implements short-term and long-term memory management for continuous thinking.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Set
+import re
 import time
 from collections import deque
 from loguru import logger
@@ -106,13 +107,40 @@ class MemoryModule:
             self.long_term_memory.append(memory)
             logger.debug(f"Memory consolidated to long-term storage. Score: {importance}")
             
+    @staticmethod
+    def _extract_words(text: str) -> Set[str]:
+        """Extract meaningful words from text for similarity comparison."""
+        tokens = re.findall(r"[\u4e00-\u9fff]+|[a-zA-Z]{2,}", text.lower())
+        return set(tokens)
+
     def _calculate_importance(self, memory: Memory) -> float:
-        """Calculate importance score for a memory."""
-        # TODO: Implement more sophisticated importance calculation
-        # Currently returns a simple score based on emotional content
+        """Calculate importance score for a memory using multiple factors."""
+        score = 0.0
+
+        # Factor 1: Emotional intensity (0-0.4)
         emotional_influence = memory.content.get("emotional_influence", {})
-        return abs(sum(emotional_influence.values())) / len(emotional_influence) \
-            if emotional_influence else 0.0
+        if emotional_influence:
+            emotional_intensity = sum(abs(v) for v in emotional_influence.values()) / len(emotional_influence)
+            score += min(0.4, emotional_intensity * 0.4)
+
+        # Factor 2: Content substance — longer, meaningful content is more important (0-0.3)
+        content = memory.content.get("content", "")
+        content_len = len(content.strip())
+        if content_len >= 50:
+            score += 0.3
+        elif content_len >= 20:
+            score += 0.2
+        elif content_len >= 5:
+            score += 0.1
+
+        # Factor 3: Confidence level (0-0.3)
+        confidence = memory.content.get("confidence", 0.0)
+        # Normalize confidence: could be 0-100 or 0-1
+        if confidence > 1.0:
+            confidence = confidence / 100.0
+        score += min(0.3, confidence * 0.3)
+
+        return min(1.0, score)
             
     def _get_relevant_memories(self) -> List[Dict[str, Any]]:
         """Retrieve relevant memories based on current context."""
@@ -142,11 +170,27 @@ class MemoryModule:
         
     def _calculate_relevance(self, memory: Memory,
                            context: Dict[str, Any]) -> float:
-        """Calculate relevance of a memory to current context."""
-        # TODO: Implement more sophisticated relevance calculation
-        # Currently returns a simple time-based decay
+        """Calculate relevance of a memory to current context using multiple factors."""
+        # Factor 1: Time decay (weight 0.4) — floor at 0.1 so old memories aren't completely invisible
         time_diff = time.time() - memory.creation_time
-        return max(0.0, 1.0 - (time_diff / 3600))  # Simple 1-hour decay
+        time_decay = max(0.1, 1.0 - (time_diff / 3600))
+
+        # Factor 2: Keyword similarity (weight 0.4)
+        memory_text = memory.content.get("content", "")
+        context_text = context.get("content", "") if isinstance(context, dict) else ""
+        memory_words = self._extract_words(memory_text)
+        context_words = self._extract_words(context_text)
+        if memory_words and context_words:
+            overlap = len(memory_words & context_words)
+            union = len(memory_words | context_words)
+            keyword_similarity = overlap / max(union, 1)
+        else:
+            keyword_similarity = 0.0
+
+        # Factor 3: Importance (weight 0.2)
+        importance = memory.importance_score
+
+        return time_decay * 0.4 + keyword_similarity * 0.4 + importance * 0.2
         
     def cleanup_memory(self):
         """Perform memory cleanup and optimization."""

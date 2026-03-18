@@ -27,3 +27,7 @@ class BaseLLM(ABC):
     async def health_check(self) -> bool:
         """Check if the LLM service is available."""
         pass
+
+    async def chat(self, request: LLMRequest) -> Dict[str, Any]:
+        """Send a chat request to the LLM. Default implementation wraps generate()."""
+        return await self.generate(request)

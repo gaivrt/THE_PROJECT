@@ -38,14 +38,14 @@ def test_store_thoughts(memory_module):
 def test_context_window(memory_module):
     """Test context window behavior."""
     # Add more thoughts than context window size
-    for i in range(15):
+    for i in range(25):
         thought = {
             "content": f"Thought {i}",
             "confidence": 0.8
         }
         memory_module.store_thoughts(thought)
-    
-    # Verify context window size
+
+    # Verify context window size is capped at maxlen
     assert len(memory_module.context_window) == memory_module.context_window.maxlen
     
     # Verify order (most recent first)

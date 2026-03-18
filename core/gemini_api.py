@@ -108,6 +108,10 @@ class GeminiAPI:
                 "done": True
             }
 
+    async def chat(self, request: GeminiRequest) -> Dict[str, Any]:
+        """Send a chat request to Gemini API. Wraps generate() since Gemini uses a unified API."""
+        return await self.generate(request)
+
     async def health_check(self) -> bool:
         """Check if Gemini API is available and working."""
         try:

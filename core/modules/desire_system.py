@@ -3,7 +3,8 @@ Desire System Module
 Implements the desire-driven mechanism that guides continuous thinking.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Set
+import re
 import numpy as np
 from loguru import logger
 
@@ -93,11 +94,62 @@ class DesireSystem:
         except Exception as e:
             logger.error(f"Error updating desires: {e}")
             
+    # Keyword mapping for each built-in desire
+    _DESIRE_KEYWORDS: Dict[str, Set[str]] = {
+        "knowledge_acquisition": {
+            "学习", "知识", "理解", "认知", "学问", "教育", "研究", "信息", "数据", "概念",
+            "learn", "learned", "learning", "know", "known", "knowing",
+            "understand", "understanding", "understood",
+            "study", "studied", "research", "information", "education",
+            "knowledge", "concept", "theory", "insight", "comprehend",
+            "new", "discover", "discovered", "science", "physics", "math",
+        },
+        "social_interaction": {
+            "交流", "对话", "沟通", "互动", "社交", "朋友", "合作", "分享", "讨论", "聊天",
+            "talk", "communicate", "discuss", "social", "interact", "conversation",
+            "share", "collaborate", "friend", "community", "dialogue",
+        },
+        "problem_solving": {
+            "解决", "问题", "方案", "分析", "策略", "逻辑", "推理", "答案", "困难", "挑战",
+            "solve", "problem", "solution", "analyze", "strategy", "logic", "reason",
+            "answer", "challenge", "fix", "debug", "resolve",
+        },
+        "self_improvement": {
+            "提升", "改进", "优化", "成长", "进步", "完善", "反思", "学习", "能力", "技能",
+            "improve", "better", "optimize", "grow", "progress", "enhance", "skill",
+            "ability", "reflect", "develop", "evolve",
+        },
+        "curiosity": {
+            "好奇", "探索", "发现", "为什么", "如何", "什么", "思考", "想象", "创新", "未知",
+            "curious", "explore", "discover", "why", "how", "what", "wonder",
+            "imagine", "innovate", "unknown", "mystery", "question",
+        },
+    }
+
+    @staticmethod
+    def _extract_words(text: str) -> Set[str]:
+        """Extract meaningful words from text for keyword matching."""
+        tokens = re.findall(r"[\u4e00-\u9fff]+|[a-zA-Z]{2,}", text.lower())
+        return set(tokens)
+
     def _calculate_relevance(self, thought_content: str, desire_name: str) -> float:
-        """Calculate relevance of a thought to a specific desire."""
-        # TODO: Implement more sophisticated relevance calculation
-        # Currently returns a random value for demonstration
-        return np.random.random() * 0.2  # Small random value
+        """Calculate relevance of a thought to a specific desire using keyword matching."""
+        if not thought_content:
+            return 0.0
+
+        keywords = self._DESIRE_KEYWORDS.get(desire_name)
+        if not keywords:
+            # Unknown desire — fall back to basic name matching
+            return 0.1 if desire_name.lower() in thought_content.lower() else 0.0
+
+        thought_words = self._extract_words(thought_content)
+        if not thought_words:
+            return 0.0
+
+        # Count keyword matches
+        matches = len(thought_words & keywords)
+        # Normalize: cap at a reasonable number of matches
+        return float(np.clip(matches / 3.0, 0.0, 1.0))
         
     def _apply_satisfaction_decay(self):
         """Apply decay to satisfaction levels of all desires."""
