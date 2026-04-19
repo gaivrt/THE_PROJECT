@@ -1,0 +1,101 @@
+name: anthropic-leak-scan
+
+on:
+  schedule:
+    # every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: 'Open ONE issue per affected repo (requires LEAK_SCANNER_PAT secret)'
+        type: boolean
+        default: false
+      max_repos:
+        description: 'Hard cap on issues to open per run'
+        type: string
+        default: '5'
+      max_pages:
+        description: 'GitHub code-search pages per query'
+        type: string
+        default: '2'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    # don't run scheduled scans on forks
+    if: github.event_name != 'schedule' || github.repository == 'gaivrt/THE_PROJECT'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Scan GitHub for leaked Anthropic keys
+        env:
+          GITHUB_TOKEN: ${{ secrets.LEAK_SCANNER_PAT || secrets.GITHUB_TOKEN }}
+          PYTHONPATH: .
+        run: |
+          python -m tools.leak_scanner scan \
+            --max-pages "${{ inputs.max_pages || '2' }}" \
+            --out findings.json
+
+      - name: Draft disclosure email
+        run: |
+          PYTHONPATH=. python -m tools.leak_scanner draft-email \
+            --input findings.json --out email.txt
+
+      - name: Write step summary
+        run: |
+          count=$(python -c "import json; print(len(json.load(open('findings.json'))))")
+          {
+            echo "## Anthropic key leak scan"
+            echo ""
+            echo "Findings: **$count**"
+            echo ""
+            echo '```json'
+            cat findings.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload findings + email draft
+        uses: actions/upload-artifact@v4
+        with:
+          name: leak-scan-${{ github.run_id }}
+          path: |
+            findings.json
+            email.txt
+          retention-days: 14
+
+  notify:
+    needs: scan
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.notify == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: leak-scan-${{ github.run_id }}
+
+      - name: Open one issue per affected repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.LEAK_SCANNER_PAT }}
+          PYTHONPATH: .
+        run: |
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "::error::LEAK_SCANNER_PAT secret is required for the notify job"
+            exit 1
+          fi
+          python -m tools.leak_scanner notify-repos \
+            --input findings.json \
+            --max "${{ inputs.max_repos }}" \
+            --spacing 30 \
+            --confirm
